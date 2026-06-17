@@ -1,0 +1,2 @@
+# Bloquear posibles cambios de terceros en los workflows
+.github/workflows/* @ioanabianca
