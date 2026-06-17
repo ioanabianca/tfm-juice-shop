@@ -72,11 +72,11 @@ jobs:
 
       # CONTAINER SCANNING (Trivy)
       - name: Run Trivy vulnerability scanner
-        uses: aquasecurity/trivy-action@v0.28.0
+        uses: aquasecurity/trivy-action@master
         with:
           image-ref: 'juice-shop:test'
           format: 'table'
-          exit-code: '0'
+          exit-code: '0' 
           ignore-unfixed: true
           vuln-type: 'os,library'
           severity: 'CRITICAL,HIGH'
