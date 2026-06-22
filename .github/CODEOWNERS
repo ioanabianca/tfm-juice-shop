@@ -1,2 +1,3 @@
-# Bloquear posibles cambios de terceros en los workflows
-.github/workflows/* @ioanabianca
+.github/workflows/*   @ioanabianca
+/.github/workflows/   @ioanabianca
+/k8s/                 @ioanabianca
