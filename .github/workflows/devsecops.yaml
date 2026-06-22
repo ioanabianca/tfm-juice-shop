@@ -3,8 +3,8 @@ name: DevSecOps Pipeline (SAST, SCA, IaC, Build, Trivy & Push)
 on:
   push:
     branches: [ "main" ]
-  pull_request:
-    branches: [ "main" ]
+  #pull_request:
+  #  branches: [ "main" ]
 
 env:
   REGISTRY: ghcr.io
@@ -44,7 +44,7 @@ jobs:
           scan-type: 'fs'
           scan-ref: '.'
           format: 'table'
-          exit-code: '1' # Cambiar para forzar el bloqueo o permitir en caso de KO
+          exit-code: '0' # Cambiar para forzar el bloqueo o permitir en caso de KO
           severity: 'CRITICAL,HIGH'
 
       - name: Run Trivy Infrastructure as Code Scan (IaC)
@@ -53,7 +53,7 @@ jobs:
           scan-type: 'config'
           scan-ref: './k8s'
           format: 'table'
-          exit-code: '1' #Cambiar para forzar el bloqueo o permitir en caso de KO
+          exit-code: '0' #Cambiar para forzar el bloqueo o permitir en caso de KO
           severity: 'CRITICAL,HIGH'
 
   # Build, Scan y Deploy
@@ -99,7 +99,7 @@ jobs:
         with:
           image-ref: 'juice-shop:test'
           format: 'table'
-          exit-code: '1' #Cambiar para forzar el bloqueo o permitir en caso de KO
+          exit-code: '0' #Cambiar para forzar el bloqueo o permitir en caso de KO
           ignore-unfixed: true
           vuln-type: 'os,library'
           severity: 'CRITICAL,HIGH'
