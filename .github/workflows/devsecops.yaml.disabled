@@ -17,12 +17,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332
         with:
           fetch-depth: 0
 
       - name: SonarCloud Static Analysis
-        uses: SonarSource/sonarcloud-github-action@v3.0.0
+        uses: SonarSource/sonarcloud-github-action@e99cf4a408e08f51df1db7e0f80e9efc90b63b2f
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
@@ -36,10 +36,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332
 
       - name: Run Trivy Software Composition Analysis (SCA)
-        uses: aquasecurity/trivy-action@master
+        uses: aquasecurity/trivy-action@69c403be60ce5d49f059bc422997f74052300b9a
         with:
           scan-type: 'fs'
           scan-ref: '.'
@@ -48,7 +48,7 @@ jobs:
           severity: 'CRITICAL,HIGH'
 
       - name: Run Trivy Infrastructure as Code Scan (IaC)
-        uses: aquasecurity/trivy-action@master
+        uses: aquasecurity/trivy-action@69c403be60ce5d49f059bc422997f74052300b9a
         with:
           scan-type: 'config'
           scan-ref: './k8s'
@@ -56,32 +56,33 @@ jobs:
           exit-code: '0' #Cambiar para forzar el bloqueo o permitir en caso de KO
           severity: 'CRITICAL,HIGH'
 
-  # Build, Scan y Deploy
-  build-sec-push-deploy:
-    name: Build, Scan Image and Secure Deploy
+  # Realiza exactamente los mismos pasos que la opción DevOps
+  devops-core-build:
+    name: DevOps Traditional Core (Build & Push)
     needs: [sonarcloud, trivy-pre-build]
     runs-on: ubuntu-latest
     permissions:
       contents: read
       packages: write
-      security-events: write
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
+        uses: docker/setup-buildx-action@aa33708b10e362ff993539393ff100fa93ed6a27
 
       - name: Extract metadata (tags, labels) for Docker
         id: meta
-        uses: docker/metadata-action@v5
+        uses: docker/metadata-action@8e5442c4ef9f78752691e2d8f8d19755c6f78e81
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
           tags: |
             type=raw,value=devsecops-latest
             type=sha,format=long
 
+<<<<<<< HEAD:.github/workflows/devsecops.yaml.disabled
+=======
       - name: Build Docker image locally
         uses: docker/build-push-action@v5
         with:
@@ -105,18 +106,18 @@ jobs:
           severity: 'CRITICAL,HIGH'
 
       # AuthN solo si es un merge correcto en main
+>>>>>>> main:.github/workflows/devsecops.yaml
       - name: Log in to the Container registry
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-        uses: docker/login-action@v3
+        uses: docker/login-action@0d22f11125664d4ecd1352e336980501fe09328d
         with:
           registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      # Sube el artefacto inmutable verificado a GHCR
-      - name: Push Secure Docker image to GHCR
+      - name: Build and Push Docker image to GHCR
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@1a5a12f36603d873c5b1204ee053758a6254766d
         with:
           context: .
           file: ./Dockerfile
@@ -126,16 +127,37 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
-      # Ejecución en OCI inyectando las políticas de Hardening de K8s
-      #- name: Execute Hardened Deployment via VM OCI
-      #  if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-      #  uses: appleboy/ssh-action@v1.0.3
-      #  with:
-      #    host: ${{ secrets.OCI_VM_IP }}
-      #    username: opc
-      #    key: ${{ secrets.OCI_SSH_KEY }}
-      #    script: |
-      #      echo "${{ secrets.KUBECONFIG_DATA }}" | base64 -d > ~/.kube/config
-      #      kubectl apply -f k8s/03-rbac.yaml
-      #      kubectl apply -f k8s/02-network-policy.yaml
-      #      kubectl apply -f k8s/01-deployment.yaml
+  # Lee y analza la imágen guardada con Trivy
+  post-build-security-scan:
+    name: Post-Build Image Scan
+    needs: devops-core-build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Run Trivy Container Image Scanner
+        uses: aquasecurity/trivy-action@69c403be60ce5d49f059bc422997f74052300b9a
+        with:
+          image-ref: ${{ env.REGISTRY }}/${{ github.repository }}:devsecops-latest
+          format: 'table'
+          exit-code: '0'
+          ignore-unfixed: true
+          vuln-type: 'os,library'
+          severity: 'CRITICAL,HIGH'
+
+  # Realiza el deploy una vez todo el analisis esté realizado
+  hardened-deploy:
+    name: Hardened Deployment
+    needs: post-build-security-scan
+    runs-on: self-hosted # Para Self-Hosted Runner
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332
+
+      - name: Execute Hardened Deployment in Local Kind
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        run: |
+          kubectl apply -f k8s/01-rbac.yaml
+          kubectl apply -f k8s/02-network-policy.yaml
+          kubectl apply -f k8s/03-deployment.yaml
