@@ -25,7 +25,7 @@ spec:
       - name: juice-shop
         image: docker.io/bkimminich/juice-shop:v16.0.0
         ports:
-        - containerPort: <PLACEHOLDER>
+        - containerPort: 3000
         securityContext: # Container Hardening
           allowPrivilegeEscalation: false
           capabilities:
@@ -44,6 +44,6 @@ spec:
   selector:
     app: juice-shop
   ports:
-  - port: <PLACEHOLDER>
-    targetPort: <PLACEHOLDER>
-    nodePort: <PLACEHOLDER>
+  - port: 80
+    targetPort: 3000
+    nodePort: 3000
