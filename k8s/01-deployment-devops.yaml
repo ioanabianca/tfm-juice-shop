@@ -19,7 +19,7 @@ spec:
       - name: regcred
       containers:
       - name: juice-shop
-        image: ghcr.io/tu-usuario-github/tfm-juice-shop:devops-latest
+        image: ghcr.io/ioanabianca/tfm-juice-shop:devops-latest
         ports:
         - containerPort: 3000
         
