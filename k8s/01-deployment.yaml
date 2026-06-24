@@ -1,49 +1,53 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: juice-shop
+  name: juice-shop-secure
   namespace: juice-shop
   labels:
-    app: juice-shop
+    app: juice-shop-secure
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: juice-shop
+      app: juice-shop-secure
   template:
     metadata:
       labels:
-        app: juice-shop
+        app: juice-shop-secure
     spec:
       serviceAccountName: pipeline-deployer
-      securityContext: # Pod Hardening
+      imagePullSecrets:
+      - name: regcred
+      securityContext:
         runAsNonRoot: true
         runAsUser: 10001
         seccompProfile:
           type: RuntimeDefault
       containers:
       - name: juice-shop
-        image: docker.io/bkimminich/juice-shop:v16.0.0
+        image: ghcr.io/tu-usuario-github/tfm-juice-shop:devsecops-latest
         ports:
         - containerPort: 3000
-        securityContext: # Container Hardening
+        securityContext:
           allowPrivilegeEscalation: false
           capabilities:
             drop:
             - ALL
           privileged: false
-          readOnlyRootFilesystem: true
+          readOnlyRootFilesystem: false
+          
 ---
+
 apiVersion: v1
 kind: Service
 metadata:
-  name: juice-shop-service
+  name: juice-shop-secure-service
   namespace: juice-shop
 spec:
   type: NodePort
   selector:
-    app: juice-shop
+    app: juice-shop-secure
   ports:
   - port: 80
     targetPort: 3000
-    nodePort: 3000
+    nodePort: 30080
