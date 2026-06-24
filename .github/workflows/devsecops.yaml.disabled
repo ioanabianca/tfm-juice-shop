@@ -130,6 +130,6 @@ jobs:
       - name: Execute Hardened Deployment in Local Kind
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         run: |
-          kubectl apply -f k8s/01-rbac.yaml
-          kubectl apply -f k8s/02-network-policy.yaml
-          kubectl apply -f k8s/03-deployment.yaml
+          kubectl apply -f k8s/02-rbac.yaml
+          kubectl apply -f k8s/03-network-policy.yaml
+          kubectl apply -f k8s/01-deployment.yaml
