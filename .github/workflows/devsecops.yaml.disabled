@@ -3,8 +3,8 @@ name: DevSecOps Pipeline (SAST, SCA, IaC, Build, Trivy & Push)
 on:
   push:
     branches: [ "main" ]
-  pull_request:
-    branches: [ "main" ]
+  #pull_request:
+  #  branches: [ "main" ]
 
 env:
   REGISTRY: ghcr.io
@@ -81,6 +81,32 @@ jobs:
             type=raw,value=devsecops-latest
             type=sha,format=long
 
+<<<<<<< HEAD:.github/workflows/devsecops.yaml.disabled
+=======
+      - name: Build Docker image locally
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./Dockerfile
+          push: false
+          load: true 
+          tags: juice-shop:test
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      # Container scanning con Trivy Image
+      - name: Run Trivy Container Image Scanner
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: 'juice-shop:test'
+          format: 'table'
+          exit-code: '0' #Cambiar para forzar el bloqueo o permitir en caso de KO
+          ignore-unfixed: true
+          vuln-type: 'os,library'
+          severity: 'CRITICAL,HIGH'
+
+      # AuthN solo si es un merge correcto en main
+>>>>>>> main:.github/workflows/devsecops.yaml
       - name: Log in to the Container registry
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         uses: docker/login-action@0d22f11125664d4ecd1352e336980501fe09328d
