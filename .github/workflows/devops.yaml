@@ -18,14 +18,14 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # actions/checkout@v4.1.7
+        uses: actions/checkout@v4
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@aa33708b10e362ff993539393ff100fa93ed6a27b # docker/setup-buildx-action@v3.5.0
+        uses: docker/setup-buildx-action@v3
 
       - name: Extract metadata (tags, labels) for Docker
         id: meta
-        uses: docker/metadata-action@8e5442c4ef9f78752691e2d8f8d19755c6f78e81  # docker/metadata-action@v5.5.1
+        uses: docker/metadata-action@v5
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
           tags: |
@@ -33,14 +33,14 @@ jobs:
             type=sha,format=long
 
       - name: Log in to the Container registry
-        uses: docker/login-action@0d22f11125664d4ecd1352e336980501fe09328d # docker/login-action@v3.2.0
+        uses: docker/login-action@v3
         with:
           registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build and Push Docker image to GHCR
-        uses: docker/build-push-action@1a5a12f36603d873c5b1204ee053758a6254766d # docker/build-push-action@v5.3.0
+        uses: docker/build-push-action@v5
         with:
           context: .
           file: ./Dockerfile
@@ -56,7 +56,7 @@ jobs:
     runs-on: self-hosted # Despliegue en maquina local
     steps:
       - name: Checkout repository
-        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # actions/checkout@v4.1.7
+        uses: actions/checkout@v4
 
       - name: Execute Plain Deployment in Local Kind
         run: |
