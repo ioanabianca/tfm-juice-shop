@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: juice-shop-traditional
+  namespace: juice-shop
+  labels:
+    app: juice-shop-traditional
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: juice-shop-traditional
+  template:
+    metadata:
+      labels:
+        app: juice-shop-traditional
+    spec:
+      imagePullSecrets:
+      - name: regcred
+      containers:
+      - name: juice-shop
+        image: ghcr.io/tu-usuario-github/tfm-juice-shop:devops-latest
+        ports:
+        - containerPort: 3000
+        
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: juice-shop-traditional-service
+  namespace: juice-shop
+spec:
+  type: NodePort
+  selector:
+    app: juice-shop-traditional
+  ports:
+  - port: 80
+    targetPort: 3000
+    nodePort: 30080

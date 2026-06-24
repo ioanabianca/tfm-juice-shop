@@ -60,6 +60,4 @@ jobs:
 
       - name: Execute Plain Deployment in Local Kind
         run: |
-          kubectl apply -f k8s/01-deployment.yaml
-          
-          
+          kubectl apply -f k8s/01-deployment-devops.yaml
