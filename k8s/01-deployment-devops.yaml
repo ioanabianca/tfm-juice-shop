@@ -22,6 +22,18 @@ spec:
         image: ghcr.io/ioanabianca/tfm-juice-shop:devops-latest
         ports:
         - containerPort: 3000
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+            - ALL
+          privileged: false
+      securityContext:
+        readOnlyRootFilesystem: true
+        runAsNonRoot: true
+        runAsUser: 10001
+        seccompProfile:
+          type: RuntimeDefault
         
 ---
 
