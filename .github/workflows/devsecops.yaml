@@ -37,7 +37,7 @@ jobs:
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
       - name: Run Trivy Software Composition Analysis (SCA)
-        uses: aquasecurity/trivy-action@18f2510ee396bbf400402947b386f6eb45a7bb67 # v0.28.0 (Equivalente estable y recomendado en lugar de 'master')
+        uses: aquasecurity/trivy-action@18f2510ee396bbf400402947b386f6eb45a7bb67 # v0.28.0'
         with:
           scan-type: 'fs'
           scan-ref: '.'
@@ -46,7 +46,7 @@ jobs:
           severity: 'CRITICAL,HIGH'
 
       - name: Run Trivy Infrastructure as Code Scan (IaC)
-        uses: aquasecurity/trivy-action@18f2510ee396bbf400402947b386f6eb45a7bb67 # v0.28.0 (Equivalente estable y recomendado en lugar de 'master')
+        uses: aquasecurity/trivy-action@18f2510ee396bbf400402947b386f6eb45a7bb67 # v0.28.0
         with:
           scan-type: 'config'
           scan-ref: './k8s'
@@ -106,7 +106,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Run Trivy Container Image Scanner
-        uses: aquasecurity/trivy-action@18f2510ee396bbf400402947b386f6eb45a7bb67 # v0.28.0 (Equivalente estable en lugar de 'master')
+        uses: aquasecurity/trivy-action@18f2510ee396bbf400402947b386f6eb45a7bb67 # v0.28.0
         with:
           image-ref: ${{ env.REGISTRY }}/${{ github.repository }}:devsecops-latest
           format: 'table'
