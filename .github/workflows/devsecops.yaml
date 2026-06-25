@@ -15,12 +15,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
           fetch-depth: 0
 
       - name: SonarCloud Static Analysis
-        uses: SonarSource/sonarcloud-github-action@v3.0.0
+        uses: SonarSource/sonarcloud-github-action@v3.0.0 # Nota: Mantener o migrar a sonarqube-scan-action en el futuro ya que v3 de este wrapper suele requerir la tag v3.0.0 o el commit específico (e.g., e2a1ee7e3cf...) dependiendo de su repositorio exacto de origen.
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
@@ -34,10 +34,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
       - name: Run Trivy Software Composition Analysis (SCA)
-        uses: aquasecurity/trivy-action@master
+        uses: aquasecurity/trivy-action@18f2510ee396bbf400402947b386f6eb45a7bb67 # v0.28.0 (Equivalente estable y recomendado en lugar de 'master')
         with:
           scan-type: 'fs'
           scan-ref: '.'
@@ -46,7 +46,7 @@ jobs:
           severity: 'CRITICAL,HIGH'
 
       - name: Run Trivy Infrastructure as Code Scan (IaC)
-        uses: aquasecurity/trivy-action@master
+        uses: aquasecurity/trivy-action@18f2510ee396bbf400402947b386f6eb45a7bb67 # v0.28.0 (Equivalente estable y recomendado en lugar de 'master')
         with:
           scan-type: 'config'
           scan-ref: './k8s'
@@ -65,14 +65,14 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
+        uses: docker/setup-buildx-action@c5c5ed6a3ad25b8c45369f9634e367d75c781965 # v3.10.0
 
       - name: Extract metadata (tags, labels) for Docker
         id: meta
-        uses: docker/metadata-action@v5
+        uses: docker/metadata-action@902fa8ec7d6ecbf8d84d538b9b233a880e428804 # v5.7.0
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
           tags: |
@@ -81,7 +81,7 @@ jobs:
 
       - name: Log in to the Container registry
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-        uses: docker/login-action@v3
+        uses: docker/login-action@9780b0c442fbb1117ed29e0efdff1e18412f7567 # v3.3.0
         with:
           registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
@@ -89,7 +89,7 @@ jobs:
 
       - name: Build and Push Docker image to GHCR
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@471d1dc4e07e5cdedd4c2171150001c434f0b7a4 # v5.8.0
         with:
           context: .
           file: ./Dockerfile
@@ -106,7 +106,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Run Trivy Container Image Scanner
-        uses: aquasecurity/trivy-action@master
+        uses: aquasecurity/trivy-action@18f2510ee396bbf400402947b386f6eb45a7bb67 # v0.28.0 (Equivalente estable en lugar de 'master')
         with:
           image-ref: ${{ env.REGISTRY }}/${{ github.repository }}:devsecops-latest
           format: 'table'
@@ -125,7 +125,7 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
       - name: Execute Hardened Deployment in Local Kind
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
