@@ -68,7 +68,7 @@ jobs:
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@c5c5ed6a3ad25b8c45369f9634e367d75c781965 # v3.10.0
+        uses: docker/setup-buildx-action@d7f5e7fd793f1821425126d4052309f5fa4f9715
 
       - name: Extract metadata (tags, labels) for Docker
         id: meta
